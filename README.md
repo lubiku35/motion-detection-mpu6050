@@ -2,8 +2,6 @@
 
 A lightweight, real-time motion tracking and analysis system built using the Raspberry Pi Pico WH and the MPU6050 accelerometer + gyroscope sensor. This project visualizes movement, detects behaviors like walking or shaking, and logs sensor data through a self-hosted, browser-accessible dashboard.
 
-<img src="assets/arch.png" style="transform: rotate(-90deg);">
-
 This project was created solely for learning purposes as part of the university course *Laboratories of Industrial Electronics*.
 
 It serves as a functional prototype and starting point for future development. While the system works reliably for basic movement detection, it currently lacks advanced features such as:
