@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Motion Intelligence Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/chart.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
+      color: #f1f5f9;
+      margin: 0;
+      padding: 2em;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1, h2, h3 {
+      color: #facc15;
+      margin-bottom: 0.5em;
+    }
+    .status {
+      font-size: 1.2em;
+      margin-bottom: 2em;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1em 1.5em;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1em;
+      justify-content: space-between;
+    }
+    .label-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .label-title {
+      font-weight: bold;
+      font-size: 0.9em;
+      color: #cbd5e1;
+    }
+    .label-value {
+      font-size: 1.5em;
+      color: #facc15;
+    }
+    .grid-2x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5em;
+      margin-bottom: 2em;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5em;
+      border-radius: 1em;
+      box-shadow: 0 0 0.75em rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+    }
+    .box-title {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #facc15;
+      margin-bottom: 0.3em;
+    }
+    .box-description {
+      font-size: 0.85em;
+      color: #94a3b8;
+    }
+    .chart-container {
+      margin-bottom: 2em;
+    }
+    .chart-description {
+      font-size: 0.85em;
+      color: #94a3b8;
+      margin-bottom: 0.5em;
+    }
+    canvas {
+      width: 100%;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 1em;
+      box-shadow: 0 0 1em rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+    .controls {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 2em;
+    }
+    select, button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      padding: 0.5em 1em;
+      border-radius: 0.5em;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #334155;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2em;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 1em;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.75em 1em;
+      text-align: left;
+    }
+    th {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+    tr:nth-child(odd) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+    tr td {
+      color: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛰️ Motion Intelligence Dashboard</h1>
+
+  <div class="status">
+    <div class="label-block">
+      <div class="label-title">Motion</div>
+      <div class="label-value" id="motion">--</div>
+    </div>
+    <div class="label-block">
+      <div class="label-title">Behavior</div>
+      <div class="label-value" id="behavior">--</div>
+    </div>
+    <div class="label-block">
+      <div class="label-title">Walking</div>
+      <div class="label-value" id="walking">--</div>
+    </div>
+    <div class="label-block">
+      <div class="label-title">Variance Z</div>
+      <div class="label-value" id="varz">--</div>
+    </div>
+    <div class="label-block">
+      <div class="label-title">Last Movement</div>
+      <div class="label-value" id="last-move">--</div>
+    </div>
+    <div class="label-block">
+      <div class="label-title">Current Time</div>
+      <div class="label-value" id="status-time">--</div>
+    </div>
+  </div>
+
+  <div class="grid-2x3">
+    <div class="box"><div class="box-title">Acceleration X</div><div class="box-description" id="accel_x">--</div></div>
+    <div class="box"><div class="box-title">Acceleration Y</div><div class="box-description" id="accel_y">--</div></div>
+    <div class="box"><div class="box-title">Acceleration Z</div><div class="box-description" id="accel_z">--</div></div>
+    <div class="box"><div class="box-title">Gyroscope X</div><div class="box-description" id="gyro_x">--</div></div>
+    <div class="box"><div class="box-title">Gyroscope Y</div><div class="box-description" id="gyro_y">--</div></div>
+    <div class="box"><div class="box-title">Gyroscope Z</div><div class="box-description" id="gyro_z">--</div></div>
+  </div>
+
+  <div class="controls">
+    <label>Chart Type:</label>
+    <select id="chartType">
+      <option value="line">Line</option>
+      <option value="bar">Bar</option>
+    </select>
+    <button id="toggle">Pause</button>
+  </div>
+
+  <div class="charts">
+    <div class="chart-container">
+      <h3>📈 Acceleration Over Time</h3>
+      <div class="chart-description">Visualizes raw acceleration on X, Y, Z axes. Useful for detecting motion direction and intensity.</div>
+      <canvas id="chart1"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>📊 Behavior Distribution</h3>
+      <div class="chart-description">Tracks counts of detected behaviors like stable, shaking, walking, etc.</div>
+      <canvas id="chart2"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>📉 Z-Axis Variance</h3>
+      <div class="chart-description">Monitors rolling variance of Z-axis acceleration, a key signal in walking detection.</div>
+      <canvas id="chart3"></canvas>
+    </div>
+  </div>
+
+  <h2>📜 Behavior Log</h2>
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Motion</th><th>Behavior</th><th>Walking</th><th>VarZ</th></tr>
+    </thead>
+    <tbody id="logBody"></tbody>
+  </table>
+
+  <script src="/client-behavior.js"></script>
+</body>
+</html>
+
